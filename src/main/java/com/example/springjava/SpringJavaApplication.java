@@ -1,5 +1,7 @@
 package com.example.springjava;
 
+import dao.ConnectionMaker;
+import dao.DUserDao;
 import dao.UserDao;
 import domain.User;
 import org.springframework.boot.SpringApplication;
@@ -12,7 +14,9 @@ public class SpringJavaApplication {
 
     public static void main(String[] args) throws SQLException, ClassNotFoundException {
 
-        UserDao dao = new UserDao();
+        ConnectionMaker connectionMaker = new DUserDao();
+
+        UserDao dao = new UserDao(connectionMaker);
 
         User user = new User();
         user.setId("chltjswo");

@@ -4,9 +4,9 @@ import domain.User;
 
 import java.sql.*;
 
-public abstract class UserDao {
+public class UserDao {
 
-    private ConnectionMaker connectionMaker;
+    private final ConnectionMaker connectionMaker;
 
     public UserDao(ConnectionMaker connectionMaker) {
         this.connectionMaker = connectionMaker;
