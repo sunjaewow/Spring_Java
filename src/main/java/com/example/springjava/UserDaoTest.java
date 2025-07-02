@@ -1,22 +1,19 @@
 package com.example.springjava;
 
-import dao.ConnectionMaker;
-import dao.DUserDao;
 import dao.UserDao;
 import domain.User;
+import factory.DaoFactory;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 
 import java.sql.SQLException;
 
 @SpringBootApplication
-public class SpringJavaApplication {
+public class UserDaoTest {
 
     public static void main(String[] args) throws SQLException, ClassNotFoundException {
 
-        ConnectionMaker connectionMaker = new DUserDao();
-
-        UserDao dao = new UserDao(connectionMaker);
+        UserDao dao = new DaoFactory().userDao();
 
         User user = new User();
         user.setId("chltjswo");
