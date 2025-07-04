@@ -1,5 +1,6 @@
 package com.example.springjava;
 
+import dao.CountingConnectionMaker;
 import dao.UserDao;
 import domain.User;
 import factory.DaoFactory;
@@ -32,6 +33,9 @@ public class UserDaoTest {
         System.out.println(user2.getPassword());
 
         System.out.println(user2.getId()+"조회 성공");
+
+        CountingConnectionMaker ccm = context.getBean("connectionMaker", CountingConnectionMaker.class);
+        System.out.println("counter: "+ ccm.getCounter());
 
     }
 

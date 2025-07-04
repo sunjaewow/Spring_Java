@@ -1,7 +1,8 @@
 package factory;
 
 import dao.ConnectionMaker;
-import dao.NUserDao;
+import dao.CountingConnectionMaker;
+import dao.NConnectionMaker;
 import dao.UserDao;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -15,6 +16,11 @@ public class DaoFactory {
 
     @Bean
     public ConnectionMaker connectionMaker() {
-        return new NUserDao();
+        return new CountingConnectionMaker(realConnectionMaker());
+    }
+
+    @Bean
+    public ConnectionMaker realConnectionMaker() {
+        return new NConnectionMaker();
     }
 }
