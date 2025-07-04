@@ -1,17 +1,31 @@
 package factory;
 
-import dao.ConnectionMaker;
-import dao.CountingConnectionMaker;
-import dao.NConnectionMaker;
-import dao.UserDao;
+import com.zaxxer.hikari.HikariDataSource;
+import dao.*;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.jdbc.datasource.SimpleDriverDataSource;
+
+
+import javax.sql.DataSource;
 
 @Configuration
 public class DaoFactory {
     @Bean
     public UserDao userDao() {
-        return new UserDao(connectionMaker());
+
+        return new UserDao(dataSource());
+    }
+
+    @Bean
+    public DataSource dataSource() {
+
+        HikariDataSource ds = new HikariDataSource();
+        ds.setDriverClassName("com.mysql.cj.jdbc.Driver");
+        ds.setJdbcUrl("jdbc:mysql://localhost:3306/spring_java");
+        ds.setUsername("root");
+        ds.setPassword("fpdlswj365");
+        return ds;
     }
 
     @Bean
