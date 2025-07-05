@@ -1,4 +1,4 @@
-package dao;
+package dao.connection;
 
 import lombok.Getter;
 

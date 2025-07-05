@@ -2,9 +2,11 @@ package factory;
 
 import com.zaxxer.hikari.HikariDataSource;
 import dao.*;
+import dao.connection.ConnectionMaker;
+import dao.connection.CountingConnectionMaker;
+import dao.connection.NConnectionMaker;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
-import org.springframework.jdbc.datasource.SimpleDriverDataSource;
 
 
 import javax.sql.DataSource;

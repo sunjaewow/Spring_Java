@@ -1,11 +1,14 @@
 package dao;
 
+import dao.strategy.AddStatement;
+import dao.strategy.DeleteAllStatement;
+import dao.strategy.StatementStrategy;
 import domain.User;
 
 import javax.sql.DataSource;
 import java.sql.*;
 
-public abstract class UserDao {
+public class UserDao {
 
     private final DataSource dataSource;
 
@@ -14,19 +17,8 @@ public abstract class UserDao {
     }
 
     public void add(User user) throws SQLException{
-        Connection c = dataSource.getConnection();
-
-        PreparedStatement ps = c.prepareStatement("insert into users(id, name, password) values (?,?,?)");
-        ps.setString(1, user.getId());
-        ps.setString(2, user.getName());
-        ps.setString(3, user.getPassword());
-
-        ps.executeUpdate();
-
-        ps.close();
-        c.close();
-
-
+        StatementStrategy st = new AddStatement(user);
+        jdbcContextWithStatementStrategy(st);
     }
 
     public User get(String id) throws SQLException {
@@ -89,15 +81,54 @@ public abstract class UserDao {
 
     }
 
-    public void deleteAll() throws SQLException {
+    public void deleteAll()throws SQLException {
+        StatementStrategy st = new DeleteAllStatement();//전략 오브젝트 생성.
+        jdbcContextWithStatementStrategy(st);//컨텍스트 호출, 전략 오브젝트 전달.
+    }
+//
+//    public void deleteAll() throws SQLException {
+//        Connection c = null;
+//        PreparedStatement ps = null;
+//
+//        try {
+//            c = dataSource.getConnection();
+//
+//            StatementStrategy statementStrategy = new DeleteAllStatement();
+//            ps = statementStrategy.makePreparedStatement(c);//전략패턴은 컨텍스트는 그대로 유지되면서 전략을 바꿔 쓸 수 있는건데 이렇게 컨텍스트 안에서 이미 구체적인 전략 클래스가 있다면 안됨.
+//            ps.executeUpdate();
+//
+//        } catch (SQLException e) {
+//            throw e;
+//        }finally {
+//            if (ps != null) {
+//                try {
+//                    ps.close();
+//                } catch (SQLException e) {
+//
+//                }
+//            }
+//            if (c != null) {
+//                try {
+//                    c.close();
+//                } catch (SQLException e) {
+//
+//                }
+//            }
+//        }
+//    }
+
+//    abstract protected PreparedStatement makeStatement(Connection c) throws SQLException;
+
+    public void jdbcContextWithStatementStrategy(StatementStrategy stmt) throws SQLException {
         Connection c = null;
         PreparedStatement ps = null;
 
         try {
             c = dataSource.getConnection();
 
-            ps = makeStatement(c);
+            ps = stmt.makePreparedStatement(c);
             ps.executeUpdate();
+
         } catch (SQLException e) {
             throw e;
         }finally {
@@ -116,8 +147,6 @@ public abstract class UserDao {
                 }
             }
         }
+
     }
-
-    abstract protected PreparedStatement makeStatement(Connection c) throws SQLException;
-
 }

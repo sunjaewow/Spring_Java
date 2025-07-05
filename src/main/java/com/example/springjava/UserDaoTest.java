@@ -1,6 +1,6 @@
 package com.example.springjava;
 
-import dao.CountingConnectionMaker;
+import dao.connection.CountingConnectionMaker;
 import dao.UserDao;
 import domain.User;
 import factory.DaoFactory;
