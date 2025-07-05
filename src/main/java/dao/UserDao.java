@@ -85,7 +85,7 @@ public class UserDao {
 
         try{
             c = dataSource.getConnection();
-            ps = c.prepareStatement("select count(*) from users");
+            ps = makeStatement(c);//변하는 부분 -> 변하는 부분을 따로 추출해도 재사용 할 필요가 없음 반대가됨.
 
             rs = ps.executeQuery();
             rs.next();
@@ -117,6 +117,10 @@ public class UserDao {
             }
         }
 
+    }
+
+    private PreparedStatement makeStatement(Connection c) throws SQLException {
+        return c.prepareStatement("delete from users");
     }
 
 
