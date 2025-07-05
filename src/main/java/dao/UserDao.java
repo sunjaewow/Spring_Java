@@ -3,18 +3,17 @@ package dao;
 import domain.User;
 
 import javax.sql.DataSource;
-import javax.xml.transform.Result;
 import java.sql.*;
 
-public class UserDao {
+public abstract class UserDao {
 
-    private final javax.sql.DataSource dataSource;
+    private final DataSource dataSource;
 
     public UserDao(DataSource dataSource) {
         this.dataSource = dataSource;
     }
 
-    public void add(User user) throws SQLException, ClassNotFoundException {
+    public void add(User user) throws SQLException{
         Connection c = dataSource.getConnection();
 
         PreparedStatement ps = c.prepareStatement("insert into users(id, name, password) values (?,?,?)");
@@ -30,7 +29,7 @@ public class UserDao {
 
     }
 
-    public User get(String id) throws SQLException, ClassNotFoundException {
+    public User get(String id) throws SQLException {
         Connection c = dataSource.getConnection();
 
         PreparedStatement ps = c.prepareStatement("select * from users where id=?");
@@ -49,35 +48,6 @@ public class UserDao {
         return user;
     }
 
-    public void deleteAll() throws SQLException {
-        Connection c = null;
-        PreparedStatement ps = null;
-
-        try {
-            c = dataSource.getConnection();
-
-            ps = c.prepareStatement("delete from users");
-            ps.executeUpdate();
-        } catch (SQLException e) {
-            throw e;
-        }finally {
-            if (ps != null) {
-                try {
-                    ps.close();
-                } catch (SQLException e) {
-
-                }
-            }
-            if (c != null) {
-                try {
-                    c.close();
-                } catch (SQLException e) {
-
-                }
-            }
-        }
-    }
-
     public int getCount() throws SQLException {
         Connection c = null;
         PreparedStatement ps = null;
@@ -85,7 +55,7 @@ public class UserDao {
 
         try{
             c = dataSource.getConnection();
-            ps = makeStatement(c);//변하는 부분 -> 변하는 부분을 따로 추출해도 재사용 할 필요가 없음 반대가됨.
+            ps = c.prepareStatement("select count(*) from users");//변하는 부분 -> 변하는 부분을 따로 추출해도 재사용 할 필요가 없음 반대가됨.
 
             rs = ps.executeQuery();
             rs.next();
@@ -119,9 +89,35 @@ public class UserDao {
 
     }
 
-    private PreparedStatement makeStatement(Connection c) throws SQLException {
-        return c.prepareStatement("delete from users");
+    public void deleteAll() throws SQLException {
+        Connection c = null;
+        PreparedStatement ps = null;
+
+        try {
+            c = dataSource.getConnection();
+
+            ps = makeStatement(c);
+            ps.executeUpdate();
+        } catch (SQLException e) {
+            throw e;
+        }finally {
+            if (ps != null) {
+                try {
+                    ps.close();
+                } catch (SQLException e) {
+
+                }
+            }
+            if (c != null) {
+                try {
+                    c.close();
+                } catch (SQLException e) {
+
+                }
+            }
+        }
     }
 
+    abstract protected PreparedStatement makeStatement(Connection c) throws SQLException;
 
 }
