@@ -3,7 +3,6 @@ package dao;
 import dao.strategy.StatementStrategy;
 import domain.User;
 
-import javax.sql.DataSource;
 import java.sql.*;
 
 public class UserDao {
@@ -15,21 +14,12 @@ public class UserDao {
     }
 
     public void add(final User user) throws SQLException {
-        this.jdbcContext.workWithStatementStrategy(new StatementStrategy() {//익명 내부 클래스는 구현하는 인터페이스를 생성자처럼 이용해서 오브젝트로 만든다.
-            //클래스 필드인 jdvcContext를 사용해서 명시적으로 보여주기위해 this.를 사용
-            @Override
-            public PreparedStatement makePreparedStatement(Connection c) throws SQLException {
-                PreparedStatement ps = c.prepareStatement("insert into users(id, name, password) values (?,?,?)");
+        jdbcContext.executeSql("insert into users(id, name, password) values (?,?,?)", user.getId(), user.getName(), user.getPassword());
 
-                ps.setString(1, user.getId());
-                ps.setString(2, user.getName());
-                ps.setString(3, user.getPassword());
+    }
 
-                return ps;
-            }
-        }
-        );
-
+    public void deleteAll()throws SQLException {//중첩 클래스, 익명 내부 클래스
+        jdbcContext.executeSql("delete from users");
     }
 
     public User get(String id) throws SQLException {
@@ -92,14 +82,6 @@ public class UserDao {
 
     }
 
-    public void deleteAll()throws SQLException {//중첩 클래스, 익명 내부 클래스
-        this.jdbcContext.workWithStatementStrategy(new StatementStrategy() {
-            @Override
-            public PreparedStatement makePreparedStatement(Connection c) throws SQLException {
-                return c.prepareStatement("delete from users");
-            }
-        });
-    }
 
 //    public void deleteAll()throws SQLException {
 //        StatementStrategy st = new DeleteAllStatement();//전략 오브젝트 생성.
