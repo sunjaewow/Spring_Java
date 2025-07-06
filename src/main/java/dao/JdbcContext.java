@@ -4,6 +4,7 @@ import dao.strategy.StatementStrategy;
 
 import java.sql.Connection;
 import java.sql.PreparedStatement;
+import java.sql.ResultSet;
 import java.sql.SQLException;
 
 public class JdbcContext {
@@ -41,17 +42,48 @@ public class JdbcContext {
                 }
             }
         }
-
     }
 
-//    public void executeSql(String sql) throws SQLException {//익명 내부 클래스
-//        workWithStatementStrategy(new StatementStrategy() {
-//            @Override
-//            public PreparedStatement makePreparedStatement(Connection c) throws SQLException {
-//                return c.prepareStatement(sql);//바뀌는 부분 분리.
-//            }
-//        });
-//    }
+    public int StatementStrategy(StatementStrategy stmt) throws SQLException {
+        Connection c = null;
+        PreparedStatement ps = null;
+        ResultSet rs = null;
+
+        try{
+            c = dataSource.getConnection();
+            ps=stmt.makePreparedStatement(c);//변하는 부분 -> 변하는 부분을 따로 추출해도 재사용 할 필요가 없음 반대가됨.
+
+            rs = ps.executeQuery();
+            rs.next();
+            return rs.getInt(1);
+
+        } catch (SQLException e) {
+            throw e;
+        }finally {
+            if (rs != null) {
+                try {
+                    rs.close();
+                } catch (SQLException e) {
+
+                }
+            }
+            if (ps != null) {
+                try {
+                    ps.close();
+                } catch (SQLException e) {
+
+                }
+            }
+            if (c != null) {
+                try {
+                    c.close();
+                } catch (SQLException e) {
+
+                }
+            }
+        }
+
+    }
 
     public void executeSql(String sql, String...params) throws SQLException {//가변인자 사용
         workWithStatementStrategy(new StatementStrategy() {//익명 내부 클래스는 구현하는 인터페이스를 생성자처럼 이용해서 오브젝트로 만든다.
@@ -68,4 +100,24 @@ public class JdbcContext {
                                   }
         );
     }
+
+    public int executeSqlQuery(String sql) throws SQLException {
+        return StatementStrategy(new StatementStrategy() {
+            @Override
+            public PreparedStatement makePreparedStatement(Connection c) throws SQLException {
+                return c.prepareStatement(sql);
+            }
+        });
+    }
+
+
+
+    //    public void executeSql(String sql) throws SQLException {//익명 내부 클래스
+//        workWithStatementStrategy(new StatementStrategy() {
+//            @Override
+//            public PreparedStatement makePreparedStatement(Connection c) throws SQLException {
+//                return c.prepareStatement(sql);//바뀌는 부분 분리.
+//            }
+//        });
+//    }
 }

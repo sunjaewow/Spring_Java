@@ -1,6 +1,7 @@
 package dao;
 
 import dao.strategy.StatementStrategy;
+import dao.strategy.getCountStatement;
 import domain.User;
 
 import java.sql.*;
@@ -22,6 +23,10 @@ public class UserDao {
         jdbcContext.executeSql("delete from users");
     }
 
+    public int getCount() throws SQLException {
+        return jdbcContext.executeSqlQuery("select count(*)from users");
+    }
+
     public User get(String id) throws SQLException {
         Connection c = dataSource.getConnection();
 
@@ -39,47 +44,6 @@ public class UserDao {
         ps.close();
         c.close();
         return user;
-    }
-
-    public int getCount() throws SQLException {
-        Connection c = null;
-        PreparedStatement ps = null;
-        ResultSet rs = null;
-
-        try{
-            c = dataSource.getConnection();
-            ps = c.prepareStatement("select count(*) from users");//변하는 부분 -> 변하는 부분을 따로 추출해도 재사용 할 필요가 없음 반대가됨.
-
-            rs = ps.executeQuery();
-            rs.next();
-            return rs.getInt(1);
-
-        } catch (SQLException e) {
-            throw e;
-        }finally {
-            if (rs != null) {
-                try {
-                    rs.close();
-                } catch (SQLException e) {
-
-                }
-            }
-            if (ps != null) {
-                try {
-                    ps.close();
-                } catch (SQLException e) {
-
-                }
-            }
-            if (c != null) {
-                try {
-                    c.close();
-                } catch (SQLException e) {
-
-                }
-            }
-        }
-
     }
 
 
