@@ -1,7 +1,6 @@
 package dao;
 
 import dao.strategy.StatementStrategy;
-import dao.strategy.getCountStatement;
 import domain.User;
 
 import java.sql.*;
@@ -15,35 +14,19 @@ public class UserDao {
     }
 
     public void add(final User user) throws SQLException {
-        jdbcContext.executeSql("insert into users(id, name, password) values (?,?,?)", user.getId(), user.getName(), user.getPassword());
-
+        jdbcContext.executeUpdateQuery("insert into users(id, name, password) values (?,?,?)", user.getId(), user.getName(), user.getPassword());
     }
 
     public void deleteAll()throws SQLException {//중첩 클래스, 익명 내부 클래스
-        jdbcContext.executeSql("delete from users");
+        jdbcContext.executeUpdateQuery("delete from users");
     }
 
     public int getCount() throws SQLException {
-        return jdbcContext.executeSqlQuery("select count(*)from users");
+        return jdbcContext.executeQuery("select count(*)from users");
     }
 
     public User get(String id) throws SQLException {
-        Connection c = dataSource.getConnection();
-
-        PreparedStatement ps = c.prepareStatement("select * from users where id=?");
-        ps.setString(1, id);
-
-        ResultSet rs = ps.executeQuery();
-        rs.next();
-        User user = new User();
-        user.setId(rs.getString("id"));
-        user.setName(rs.getString("name"));
-        user.setPassword(rs.getString("password"));
-
-        rs.close();
-        ps.close();
-        c.close();
-        return user;
+        return jdbcContext.executeQuery(id,"select  * from users where id=?");
     }
 
 

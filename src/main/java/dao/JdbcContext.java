@@ -1,6 +1,7 @@
 package dao;
 
 import dao.strategy.StatementStrategy;
+import domain.User;
 
 import java.sql.Connection;
 import java.sql.PreparedStatement;
@@ -44,7 +45,7 @@ public class JdbcContext {
         }
     }
 
-    public int StatementStrategy(StatementStrategy stmt) throws SQLException {
+    public ResultSet StatementStrategy(StatementStrategy stmt) throws SQLException {
         Connection c = null;
         PreparedStatement ps = null;
         ResultSet rs = null;
@@ -55,7 +56,7 @@ public class JdbcContext {
 
             rs = ps.executeQuery();
             rs.next();
-            return rs.getInt(1);
+            return rs;
 
         } catch (SQLException e) {
             throw e;
@@ -85,7 +86,7 @@ public class JdbcContext {
 
     }
 
-    public void executeSql(String sql, String...params) throws SQLException {//가변인자 사용
+    public void executeUpdateQuery(String sql, String...params) throws SQLException {//가변인자 사용
         workWithStatementStrategy(new StatementStrategy() {//익명 내부 클래스는 구현하는 인터페이스를 생성자처럼 이용해서 오브젝트로 만든다.
                                       //클래스 필드인 jdvcContext를 사용해서 명시적으로 보여주기위해 this.를 사용
                                       @Override
@@ -101,18 +102,35 @@ public class JdbcContext {
         );
     }
 
-    public int executeSqlQuery(String sql) throws SQLException {
+    public int executeQuery(String sql) throws SQLException {
         return StatementStrategy(new StatementStrategy() {
             @Override
             public PreparedStatement makePreparedStatement(Connection c) throws SQLException {
                 return c.prepareStatement(sql);
             }
+        }).getInt(1);
+    }
+
+
+    public User executeQuery(String id, String sql) throws SQLException {
+        ResultSet rs =StatementStrategy(new StatementStrategy() {
+            @Override
+            public PreparedStatement makePreparedStatement(Connection c) throws SQLException {
+                PreparedStatement ps = c.prepareStatement(sql);
+                ps.setString(1, id);
+                return ps;
+            }
         });
+        User user = new User();
+        user.setId(rs.getString("id"));
+        user.setName(rs.getString("name"));
+        user.setPassword(rs.getString("password"));
+        return user;
     }
 
 
 
-    //    public void executeSql(String sql) throws SQLException {//익명 내부 클래스
+    //    public void executeUpdateSql(String sql) throws SQLException {//익명 내부 클래스
 //        workWithStatementStrategy(new StatementStrategy() {
 //            @Override
 //            public PreparedStatement makePreparedStatement(Connection c) throws SQLException {
