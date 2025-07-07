@@ -1,11 +1,7 @@
 package dao;
 
-import dao.strategy.StatementStrategy;
 import domain.User;
-import org.springframework.dao.DataAccessException;
 import org.springframework.jdbc.core.JdbcTemplate;
-import org.springframework.jdbc.core.PreparedStatementCreator;
-import org.springframework.jdbc.core.ResultSetExtractor;
 import org.springframework.jdbc.core.RowMapper;
 
 import javax.sql.DataSource;
@@ -14,14 +10,10 @@ import java.util.List;
 
 public class UserDao {
 
-    private DataSource dataSource;
-
     private JdbcTemplate jdbcTemplate;
 
     public void setDataSource(DataSource dataSource) {
         this.jdbcTemplate = new JdbcTemplate(dataSource);
-
-        this.dataSource = dataSource;
     }
 
     public void add(final User user) throws SQLException {
@@ -58,33 +50,23 @@ public class UserDao {
 //        return jdbcContext.executeQuery(id,"select  * from users where id=?");
         return this.jdbcTemplate.queryForObject("select * from users where id=?",//조회 결과가 없는 경우 예외를 처리해줘야하는데
                 // queryforobject는 예외를 던지도록 만들어져 있다. 미친
-                new Object[]{id},
-                new RowMapper<User>() {
-                    @Override
-                    public User mapRow(ResultSet rs, int rowNum) throws SQLException {
-                        User user = new User();
-                        user.setId(rs.getString("id"));
-                        user.setName(rs.getString("name"));
-                        user.setPassword(rs.getString("password"));
-                        return user;
-                    }
-                });
+                new Object[]{id}, userMapper);
     }
 
     public List<User> getAll() {
-        return this.jdbcTemplate.query("select * from users order by id",
-                new RowMapper<User>() {
-                    @Override
-                    public User mapRow(ResultSet rs, int rowNum) throws SQLException {
-                        User user = new User();
-                        user.setId(rs.getString("id"));
-                        user.setName(rs.getString("name"));
-                        user.setPassword(rs.getString("password"));
-                        return user;
-                    }
-                });
-
+        return this.jdbcTemplate.query("select * from users order by id", userMapper);
     }
+
+    private RowMapper<User> userMapper = new RowMapper<User>() {//중복 코드 추출
+        @Override
+        public User mapRow(ResultSet rs, int rowNum) throws SQLException {
+            User user = new User();
+            user.setId(rs.getString("id"));
+            user.setName(rs.getString("name"));
+            user.setPassword(rs.getString("password"));
+            return user;
+        }
+    };
 
 
 //    public void deleteAll()throws SQLException {
