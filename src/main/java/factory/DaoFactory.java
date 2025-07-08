@@ -13,11 +13,11 @@ import javax.sql.DataSource;
 
 @Configuration
 public class DaoFactory {
-//    @Bean
-//    public UserDao userDao() {
-//
-//        return new UserDao(new JdbcContext());
-//    }
+    @Bean
+    public UserDao userDao() {
+
+        return new UserDao(dataSource());
+    }
 
     @Bean
     public DataSource dataSource() {

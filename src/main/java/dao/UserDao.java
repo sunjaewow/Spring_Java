@@ -10,25 +10,26 @@ import java.util.List;
 
 public class UserDao {
 
-    private JdbcTemplate jdbcTemplate;
+    private final JdbcTemplate jdbcTemplate;
 
-    public void setDataSource(DataSource dataSource) {
+    public UserDao(DataSource dataSource) {
         this.jdbcTemplate = new JdbcTemplate(dataSource);
     }
 
-    public void add(final User user) throws SQLException {
+    public void add(final User user) {
 //        jdbcContext.executeUpdateQuery("insert into users(id, name, password) values (?,?,?)", user.getId(), user.getName(), user.getPassword());
-        this.jdbcTemplate.update("insert into users(id, name, password) values (?,?,?)", user.getId(), user.getName(), user.getPassword());
+        this.jdbcTemplate.
+                update("insert into users(id, name, password) values (?,?,?)", user.getId(), user.getName(), user.getPassword());
     }
 
 
-    public void deleteAll()throws SQLException {//중첩 클래스, 익명 내부 클래스
+    public void deleteAll() {//중첩 클래스, 익명 내부 클래스
 //        jdbcContext.executeUpdateQuery("delete from users"); 스프링은 jdbc를 이용하는 dao에서 사용할 수 있도록 준비된 다양한 템플릿과 콜백을 제공
         //할 뿐만아니라 자주 사용되는 패턴을 가진 콜백은 다시 템플릿에 결합시켜서 간단한 메소드 호출만으로 사용이 가능하도록 만들어져 있음.
         this.jdbcTemplate.update("delete from users");//그래서 이렇게 간단하게 메서드를 이용해서 가능
     }
 
-    public int getCount() throws SQLException {
+    public int getCount(){
 //        return jdbcContext.executeQuery("select count(*)from users");
 //        return this.jdbcTemplate.query(new PreparedStatementCreator() {
 //            @Override
@@ -46,7 +47,7 @@ public class UserDao {
 
     }
 
-    public User get(String id) throws SQLException {
+    public User get(String id){
 //        return jdbcContext.executeQuery(id,"select  * from users where id=?");
         return this.jdbcTemplate.queryForObject("select * from users where id=?",//조회 결과가 없는 경우 예외를 처리해줘야하는데
                 // queryforobject는 예외를 던지도록 만들어져 있다. 미친
