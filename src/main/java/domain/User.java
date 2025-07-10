@@ -17,11 +17,11 @@ public class User {
 
     String password;
 
-    Level level;
-
-    int login;
-
-    int recommend;
+//    Level level;
+//
+//    int login;
+//
+//    int recommend;
 
 }
 
