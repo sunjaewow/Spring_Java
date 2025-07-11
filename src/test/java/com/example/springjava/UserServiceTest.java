@@ -3,6 +3,7 @@ package com.example.springjava;
 import dao.UserDao;
 import domain.Level;
 import domain.User;
+import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -44,6 +45,11 @@ public class UserServiceTest {
         userService.setUserService(dao);
     }
 
+    @AfterEach
+    public void after() {
+        dao.deleteAll();
+    }
+
     @Test
     public void bean() {
         assertThat(this.userService).isNotNull();
@@ -51,7 +57,6 @@ public class UserServiceTest {
 
     @Test
     public void upgradeLevels() {
-        dao.deleteAll();
         for (User user : users) {
             dao.add(user);
         }
@@ -61,6 +66,22 @@ public class UserServiceTest {
         checkLevel(users.get(2), Level.SILVER);
         checkLevel(users.get(3), Level.GOLD);
         checkLevel(users.get(4), Level.GOLD);
+    }
+
+    @Test
+    public void add() {
+        User userWithLevel = users.get(4);
+        User userWithoutLevel = users.get(0);
+        userWithoutLevel.setLevel(null);
+
+        userService.add(userWithLevel);
+        userService.add(userWithoutLevel);
+
+        User userWithLevelRead = dao.get(userWithLevel.getId());
+        User userWithoutLevelRead = dao.get(userWithoutLevel.getId());
+
+        assertThat(userWithLevelRead.getLevel()).isEqualTo(userWithLevel.getLevel());
+        assertThat(userWithoutLevelRead.getLevel()).isEqualTo(Level.BASIC);
     }
 
     private void checkLevel(User user, Level expectedLeve) {
