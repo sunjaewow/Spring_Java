@@ -1,8 +1,10 @@
 package com.example.springjava;
 
 import dao.UserDao;
+import domain.Level;
 import domain.User;
 import factory.DaoFactory;
+import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -23,34 +25,36 @@ public class UserDaoTest {
 
     UserDao dao;
 
+    User user1;
+    User user2;
+    User user3;
+
     @BeforeEach
     public void setUp() {
         DataSource dataSource = new SingleConnectionDataSource(
                 "jdbc:mysql://localhost:3306/spring_java_test", "root", "fpdlswj365", true);
         dao = new UserDao(dataSource);
 
+        this.user1 = new User("aa", "aa1", "aa2", Level.BASIC, 1, 0);
+        this.user2 = new User("bb", "bb1", "bb2", Level.SILVER, 55, 10);
+        this.user3 = new User("cc", "cc1", "cc2", Level.GOLD, 100, 40);
     }
 
-    @Test
-    public void addAndGet() {
-
-        User user = new User("chltjswo", "최선재", "good");
-
-        dao.add(user);
-
-        User user2 = dao.get(user.getId());
-
+    @AfterEach
+    public void delete() {
         dao.deleteAll();
-        int count = dao.getCount();
-
-        assertThat(user2.getId()).isEqualTo(user.getId());
-        assertThat(user2.getName()).isEqualTo(user.getName());
-        assertThat(user2.getPassword()).isEqualTo(user.getPassword());
-//        assertThat(user2.getLevel()).isEqualTo(Level.BASIC);
-//        assertThat(user2.getLogin()).isEqualTo(3);
-//        assertThat(user2.getRecommend()).isEqualTo(0);
-        assertThat(count == 0).isTrue();
     }
+
+//
+//    @Test
+//    public void addAndGet() {
+//
+//        User getUser1 = dao.get(user1.getId());
+//        checkSameUser(getUser1, user1);
+//
+//        User getUser2 = dao.get(user2.getId());
+//        checkSameUser(getUser2, user2);
+//    }
 
     @Test
     public void getUserFailure() {
@@ -58,13 +62,34 @@ public class UserDaoTest {
         assertThatThrownBy(() -> dao.get("unknown")).isInstanceOf(EmptyResultDataAccessException.class);
     }
 
+    @Test
+    public void update() {
+        dao.deleteAll();
+
+        dao.add(user1);
+
+        user1.setName("aaaa");
+        user1.setPassword("aaaaa2");
+        user1.setLevel(Level.GOLD);
+        user1.setLogin(1000);
+        user1.setRecommend(999);
+        dao.update(user1);
+
+        User user1update = dao.get(user1.getId());
+        checkSameUser(user1, user1update);
+
+        dao.add(user2);
+        User user2update = dao.get(user2.getId());
+        checkSameUser(user2, user2update);
+
+    }
 
     private void checkSameUser(User user1, User user2) {
-        assertThat(user1.getId().equals(user2.getId())).isTrue();
-        assertThat(user1.getName().equals(user2.getName())).isTrue();
-        assertThat(user1.getPassword().equals(user2.getPassword())).isTrue();
-//        assertThat(user1.getLevel().equals(user2.getLevel())).isTrue();
-//        assertThat(user1.getLogin()==(user2.getLogin())).isTrue();
-//        assertThat(user1.getRecommend()==(user2.getRecommend())).isTrue();
+        assertThat(user1.getId()).isEqualTo(user2.getId());
+        assertThat(user1.getName()).isEqualTo(user2.getName());
+        assertThat(user1.getPassword()).isEqualTo(user2.getPassword());
+        assertThat(user1.getLevel()).isEqualTo(user2.getLevel());
+        assertThat(user1.getLogin()).isEqualTo(user2.getLogin());
+        assertThat(user1.getRecommend()).isEqualTo(user2.getRecommend());
     }
 }
