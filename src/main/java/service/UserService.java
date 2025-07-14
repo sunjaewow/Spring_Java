@@ -10,6 +10,9 @@ public class UserService {
 
     UserDao userDao;
 
+    public static final int MIN_LOGCOUNT_FOR_SLIVER = 50;
+    public static final int MIN_RECCOMEND_FOR_GOLD = 30;
+
     public void setUserService(UserDao userDao) {
         this.userDao = userDao;
     }
@@ -28,6 +31,7 @@ public class UserService {
         if (nextLevel == null) {
             throw new IllegalStateException(user.getLevel() + "은 업그레이드가 불가능합니다.");
         } else {
+            user.setLevel(nextLevel);
             userDao.update(user);
         }
     }
@@ -39,10 +43,10 @@ public class UserService {
         Level currentLevel = user.getLevel();
         switch (currentLevel) {
             case BASIC -> {
-                return (user.getLogin() >= 50);
+                return (user.getLogin() >= MIN_LOGCOUNT_FOR_SLIVER);
             }
             case SILVER -> {
-                return (user.getRecommend() >= 30);
+                return (user.getRecommend() >= MIN_RECCOMEND_FOR_GOLD);
             }
             case GOLD -> {
                 return false;
@@ -59,4 +63,5 @@ public class UserService {
         }
         userDao.add(userWithoutLevel);
     }
+
 }
