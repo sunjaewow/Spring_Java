@@ -24,8 +24,12 @@ public class UserService {
     }
 
     public void upgradeLevel(User user) {
-        user.getLevel().nextLevel();
-        userDao.update(user);
+        Level nextLevel = user.getLevel().nextLevel();
+        if (nextLevel == null) {
+            throw new IllegalStateException(user.getLevel() + "은 업그레이드가 불가능합니다.");
+        } else {
+            userDao.update(user);
+        }
     }
 
     public void upgradeLevel() {
@@ -38,7 +42,7 @@ public class UserService {
                 return (user.getLogin() >= 50);
             }
             case SILVER -> {
-                return (user.getLogin() >= 30);
+                return (user.getRecommend() >= 30);
             }
             case GOLD -> {
                 return false;
