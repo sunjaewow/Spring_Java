@@ -12,6 +12,7 @@ import org.springframework.test.context.junit.jupiter.SpringExtension;
 import service.UserService;
 
 import javax.sql.DataSource;
+import java.sql.SQLException;
 import java.util.Arrays;
 import java.util.List;
 
@@ -41,7 +42,7 @@ public class UserServiceTest {
                 "jdbc:mysql://localhost:3306/spring_java_test", "root", "fpdlswj365", true);
         dao = new UserDao(dataSource);
         userService = new UserService();
-        userService.setUserService(dao);
+        userService.setUserService(dao, dataSource);
     }
 
     @AfterEach
@@ -71,11 +72,11 @@ public class UserServiceTest {
     }
 
     @Test
-    public void upgradeLevels() {
+    public void upgradeLevels() throws SQLException {
         for (User user : users) {
             dao.add(user);
         }
-        userService.upgradeLevels();
+        userService.upgradeLevel();
         checkLevel(users.get(0), false);
         checkLevel(users.get(1), true);
         checkLevel(users.get(2), false);
