@@ -7,6 +7,7 @@ import org.springframework.jdbc.datasource.DataSourceTransactionManager;
 import org.springframework.jdbc.datasource.DataSourceUtils;
 import org.springframework.transaction.PlatformTransactionManager;
 import org.springframework.transaction.TransactionStatus;
+import org.springframework.transaction.jta.JtaTransactionManager;
 import org.springframework.transaction.support.DefaultTransactionDefinition;
 import org.springframework.transaction.support.TransactionSynchronizationManager;
 
@@ -44,8 +45,9 @@ public class UserService {
 //        TransactionSynchronizationManager.initSynchronization();//트랜잭션 동기화 매니저를 이용해 동기화 작업을 초기화한다.
 //        Connection c = DataSourceUtils.getConnection(dataSource); jdbc일 때
 //        c.setAutoCommit(false);//db 커넥션을 생성하고, 트랜잭션을 시작한다. 이후의 dao 작업은 모두 여기서 시작한 트랜잭션 안에서 진행된다.
-        PlatformTransactionManager transactionManager = new DataSourceTransactionManager(dataSource);//jdbc 트랜잭션 추상 오브젝트 생성
-        TransactionStatus status = transactionManager.getTransaction(new DefaultTransactionDefinition());//트랜잭션 추상화
+//        PlatformTransactionManager transactionManager = new DataSourceTransactionManager(dataSource);//jdbc 트랜잭션 추상 오브젝트 생성
+        PlatformTransactionManager txManager = new JtaTransactionManager();//글로벌 트랜잭션으로 변경
+        TransactionStatus status = txManager.getTransaction(new DefaultTransactionDefinition());//트랜잭션 추상화
         //각각 다른 트랜잭션을 이용하는경우
         try {
             List<User> users = userDao.getAll();
@@ -55,10 +57,10 @@ public class UserService {
                 }
             }
 //            c.commit();
-            transactionManager.commit(status);
+            txManager.commit(status);
         } catch (Exception e) {
 //            c.rollback();
-            transactionManager.rollback(status);
+            txManager.rollback(status);
             throw e;
         }
 //        finally {
