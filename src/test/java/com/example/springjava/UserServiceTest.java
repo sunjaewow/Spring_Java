@@ -1,5 +1,6 @@
 package com.example.springjava;
 
+import config.AppConfig;
 import dao.UserDao;
 import domain.Level;
 import domain.User;
@@ -7,8 +8,11 @@ import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.jdbc.datasource.SingleConnectionDataSource;
+import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
+import org.springframework.transaction.PlatformTransactionManager;
 import service.UserService;
 
 import javax.sql.DataSource;
@@ -20,7 +24,11 @@ import static org.assertj.core.api.Assertions.*;
 import static service.UserService.*;
 
 @ExtendWith(SpringExtension.class)
+@ContextConfiguration(classes = AppConfig.class)
 public class UserServiceTest {
+
+    @Autowired
+    PlatformTransactionManager transactionManager;
 
     UserService userService;
 
@@ -42,7 +50,8 @@ public class UserServiceTest {
                 "jdbc:mysql://localhost:3306/spring_java_test", "root", "fpdlswj365", true);
         dao = new UserDao(dataSource);
         userService = new UserService();
-        userService.setUserService(dao, dataSource);
+        userService.setTransactionManager(transactionManager);
+        userService.setUserService(dao);
     }
 
     @AfterEach

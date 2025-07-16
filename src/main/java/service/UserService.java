@@ -3,30 +3,30 @@ package service;
 import dao.UserDao;
 import domain.Level;
 import domain.User;
-import org.springframework.jdbc.datasource.DataSourceTransactionManager;
-import org.springframework.jdbc.datasource.DataSourceUtils;
+import org.springframework.stereotype.Component;
 import org.springframework.transaction.PlatformTransactionManager;
 import org.springframework.transaction.TransactionStatus;
-import org.springframework.transaction.jta.JtaTransactionManager;
 import org.springframework.transaction.support.DefaultTransactionDefinition;
-import org.springframework.transaction.support.TransactionSynchronizationManager;
 
-import javax.sql.DataSource;
-import java.sql.Connection;
 import java.sql.SQLException;
 import java.util.List;
 
+@Component
 public class UserService {
 
     UserDao userDao;
-    DataSource dataSource;
+
+    PlatformTransactionManager transactionManager;
 
     public static final int MIN_LOGCOUNT_FOR_SLIVER = 50;
     public static final int MIN_RECCOMEND_FOR_GOLD = 30;
 
-    public void setUserService(UserDao userDao, DataSource dataSource) {
+    public void setUserService(UserDao userDao) {
         this.userDao = userDao;
-        this.dataSource = dataSource;
+    }
+
+    public void setTransactionManager(PlatformTransactionManager transactionManager) {
+        this.transactionManager = transactionManager;
     }
 
 
@@ -46,8 +46,9 @@ public class UserService {
 //        Connection c = DataSourceUtils.getConnection(dataSource); jdbc일 때
 //        c.setAutoCommit(false);//db 커넥션을 생성하고, 트랜잭션을 시작한다. 이후의 dao 작업은 모두 여기서 시작한 트랜잭션 안에서 진행된다.
 //        PlatformTransactionManager transactionManager = new DataSourceTransactionManager(dataSource);//jdbc 트랜잭션 추상 오브젝트 생성
-        PlatformTransactionManager txManager = new JtaTransactionManager();//글로벌 트랜잭션으로 변경
-        TransactionStatus status = txManager.getTransaction(new DefaultTransactionDefinition());//트랜잭션 추상화
+//        PlatformTransactionManager txManager = new JtaTransactionManager();//글로벌 트랜잭션으로 변경
+//        TransactionStatus status = txManager.getTransaction(new DefaultTransactionDefinition());//트랜잭션 추상화
+        TransactionStatus status = this.transactionManager.getTransaction(new DefaultTransactionDefinition());
         //각각 다른 트랜잭션을 이용하는경우
         try {
             List<User> users = userDao.getAll();
@@ -57,10 +58,10 @@ public class UserService {
                 }
             }
 //            c.commit();
-            txManager.commit(status);
+            this.transactionManager.commit(status);
         } catch (Exception e) {
 //            c.rollback();
-            txManager.rollback(status);
+            this.transactionManager.rollback(status);
             throw e;
         }
 //        finally {
