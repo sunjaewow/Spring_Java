@@ -3,6 +3,12 @@ package service;
 import dao.UserDao;
 import domain.Level;
 import domain.User;
+import org.apache.logging.log4j.message.Message;
+import org.apache.logging.log4j.message.MessageFormatMessage;
+import org.springframework.boot.autoconfigure.jms.JmsProperties;
+import org.springframework.boot.web.servlet.server.Session;
+import org.springframework.mail.SimpleMailMessage;
+import org.springframework.mail.javamail.JavaMailSenderImpl;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.PlatformTransactionManager;
 import org.springframework.transaction.TransactionStatus;
@@ -10,6 +16,7 @@ import org.springframework.transaction.support.DefaultTransactionDefinition;
 
 import java.sql.SQLException;
 import java.util.List;
+import java.util.Properties;
 
 @Component
 public class UserService {
@@ -55,6 +62,8 @@ public class UserService {
             for (User user : users) {
                 if (canUpgradeLevel(user)) {
                     upgradeLevel(user);
+                    userDao.update(user);
+                    sendUpgradeEmail(user);
                 }
             }
 //            c.commit();
@@ -70,6 +79,19 @@ public class UserService {
 //            TransactionSynchronizationManager.clearSynchronization();
 //            //동기화 작업 종료 및 정리
 //        }
+    }
+
+    private void sendUpgradeEmail(User user) {
+        JavaMailSenderImpl mailSender = new JavaMailSenderImpl();
+        mailSender.setHost("mail.server.com");
+
+        SimpleMailMessage mailMessage = new SimpleMailMessage();
+        mailMessage.setTo(user.getEmail());
+        mailMessage.setFrom("useradmin@ksug.org");
+        mailMessage.setSubject("Upgrade 안내");
+        mailMessage.setText("사용자님의 등급이"+user.getLevel().name());
+
+        mailSender.send(mailMessage);
     }
 
     public boolean canUpgradeLevel(User user) {

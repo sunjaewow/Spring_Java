@@ -3,16 +3,12 @@ package com.example.springjava;
 import dao.UserDao;
 import domain.Level;
 import domain.User;
-import factory.DaoFactory;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.context.annotation.Bean;
 import org.springframework.dao.EmptyResultDataAccessException;
 import org.springframework.jdbc.datasource.SingleConnectionDataSource;
-import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
 
 import javax.sql.DataSource;
@@ -35,9 +31,9 @@ public class UserDaoTest {
                 "jdbc:mysql://localhost:3306/spring_java_test", "root", "fpdlswj365", true);
         dao = new UserDao(dataSource);
 
-        this.user1 = new User("aa", "aa1", "aa2", Level.BASIC, 1, 0);
-        this.user2 = new User("bb", "bb1", "bb2", Level.SILVER, 55, 10);
-        this.user3 = new User("cc", "cc1", "cc2", Level.GOLD, 100, 40);
+        this.user1 = new User("aa", "aa1","email", "aa2", Level.BASIC, 1, 0);
+        this.user2 = new User("bb", "bb1","email2", "bb2", Level.SILVER, 55, 10);
+        this.user3 = new User("cc", "cc1","email3","cc2", Level.GOLD, 100, 40);
     }
 
     @AfterEach

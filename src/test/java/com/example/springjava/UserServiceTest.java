@@ -39,11 +39,11 @@ public class UserServiceTest {
     @BeforeEach
     public void setUp() {
         users = Arrays.asList(
-                new User("sunjae", "선재", "p1", Level.BASIC, MIN_LOGCOUNT_FOR_SLIVER -1, 0),
-                new User("jihye", "지혜", "p2", Level.BASIC, MIN_LOGCOUNT_FOR_SLIVER, 0),
-                new User("junngwook", "정욱", "p3", Level.SILVER, 60, MIN_RECCOMEND_FOR_GOLD-1),
-                new User("sumin", "수민", "p4", Level.SILVER, 60,MIN_RECCOMEND_FOR_GOLD),
-                new User("yoonjung", "윤정", "p5", Level.GOLD, 100, 100)
+                new User("sunjae", "선재", "email1","p1", Level.BASIC, MIN_LOGCOUNT_FOR_SLIVER -1, 0),
+                new User("jihye", "지혜", "email2","p2", Level.BASIC, MIN_LOGCOUNT_FOR_SLIVER, 0),
+                new User("junngwook", "정욱", "email3","p3", Level.SILVER, 60, MIN_RECCOMEND_FOR_GOLD-1),
+                new User("sumin", "수민","email4", "p4", Level.SILVER, 60,MIN_RECCOMEND_FOR_GOLD),
+                new User("yoonjung", "윤정","email5", "p5", Level.GOLD, 100, 100)
         );
 
         DataSource dataSource = new SingleConnectionDataSource(
