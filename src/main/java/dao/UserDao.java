@@ -20,7 +20,7 @@ public class UserDao {
     public void add(final User user) {
 //        jdbcContext.executeUpdateQuery("insert into users(id, name, password) values (?,?,?)", user.getId(), user.getName(), user.getPassword());
         this.jdbcTemplate.
-                update("insert into users(id, name,email, password, level, login, recommend) values (?,?,?,?,?,?,?)",
+                update("insert into users(id, name, email, password, level, login, recommend) values (?,?,?,?,?,?,?)",
                         user.getId(), user.getName(),user.getEmail(), user.getPassword(), user.getLevel().intValue(), user.getLogin(), user.getRecommend());
     }
 

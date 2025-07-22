@@ -13,7 +13,9 @@ import org.springframework.jdbc.datasource.SingleConnectionDataSource;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
 import org.springframework.transaction.PlatformTransactionManager;
+import service.UserService;
 import service.UserServiceImpl;
+import service.UserServiceTx;
 
 import javax.sql.DataSource;
 import java.sql.SQLException;
@@ -30,7 +32,10 @@ public class UserServiceImplTest {
     @Autowired
     PlatformTransactionManager transactionManager;
 
-    UserServiceImpl userServiceImpl;
+    @Autowired
+    UserService userService;
+
+    UserServiceTx userServiceTx;
 
     UserDao dao;
 
@@ -49,9 +54,9 @@ public class UserServiceImplTest {
         DataSource dataSource = new SingleConnectionDataSource(
                 "jdbc:mysql://localhost:3306/spring_java_test", "root", "fpdlswj365", true);
         dao = new UserDao(dataSource);
-        userServiceImpl = new UserServiceImpl();
-        userServiceImpl.setTransactionManager(transactionManager);
-        userServiceImpl.setUserService(dao);
+        userServiceTx = new UserServiceTx();
+        userServiceTx.setTransactionManager(transactionManager);
+        userServiceTx.setUserService(userService);
     }
 
     @AfterEach
@@ -61,7 +66,7 @@ public class UserServiceImplTest {
 
     @Test
     public void bean() {
-        assertThat(this.userServiceImpl).isNotNull();
+        assertThat(this.userServiceTx).isNotNull();
     }
 
     @Test
@@ -70,8 +75,8 @@ public class UserServiceImplTest {
         User userWithoutLevel = users.get(0);
         userWithoutLevel.setLevel(null);
 
-        userServiceImpl.add(userWithLevel);
-        userServiceImpl.add(userWithoutLevel);
+        userServiceTx.add(userWithLevel);
+        userServiceTx.add(userWithoutLevel);
 
         User userWithLevelRead = dao.get(userWithLevel.getId());
         User userWithoutLevelRead = dao.get(userWithoutLevel.getId());
@@ -85,7 +90,7 @@ public class UserServiceImplTest {
         for (User user : users) {
             dao.add(user);
         }
-        userServiceImpl.upgradeLevels();
+        userServiceTx.upgradeLevels();
         checkLevel(users.get(0), false);
         checkLevel(users.get(1), true);
         checkLevel(users.get(2), false);

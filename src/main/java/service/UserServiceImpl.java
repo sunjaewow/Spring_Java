@@ -6,11 +6,6 @@ import domain.User;
 import org.springframework.mail.SimpleMailMessage;
 import org.springframework.mail.javamail.JavaMailSenderImpl;
 import org.springframework.stereotype.Component;
-import org.springframework.transaction.PlatformTransactionManager;
-import org.springframework.transaction.TransactionStatus;
-import org.springframework.transaction.support.DefaultTransactionDefinition;
-
-import java.sql.SQLException;
 import java.util.List;
 
 @Component
@@ -18,17 +13,12 @@ public class UserServiceImpl implements UserService{
 
     UserDao userDao;
 
-    PlatformTransactionManager transactionManager;
 
     public static final int MIN_LOGCOUNT_FOR_SLIVER = 50;
     public static final int MIN_RECCOMEND_FOR_GOLD = 30;
 
-    public void setUserService(UserDao userDao) {
+    public UserServiceImpl(UserDao userDao) {
         this.userDao = userDao;
-    }
-
-    public void setTransactionManager(PlatformTransactionManager transactionManager) {
-        this.transactionManager = transactionManager;
     }
 
 
@@ -47,7 +37,7 @@ public class UserServiceImpl implements UserService{
             if (canUpgradeLevel(user)) {
                 upgradeLevel(user);
                 userDao.update(user);
-                sendUpgradeEmail(user);
+//                sendUpgradeEmail(user);
             }
         }
     }
