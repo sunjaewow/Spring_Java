@@ -3,10 +3,6 @@ package service;
 import dao.UserDao;
 import domain.Level;
 import domain.User;
-import org.apache.logging.log4j.message.Message;
-import org.apache.logging.log4j.message.MessageFormatMessage;
-import org.springframework.boot.autoconfigure.jms.JmsProperties;
-import org.springframework.boot.web.servlet.server.Session;
 import org.springframework.mail.SimpleMailMessage;
 import org.springframework.mail.javamail.JavaMailSenderImpl;
 import org.springframework.stereotype.Component;
@@ -16,7 +12,6 @@ import org.springframework.transaction.support.DefaultTransactionDefinition;
 
 import java.sql.SQLException;
 import java.util.List;
-import java.util.Properties;
 
 @Component
 public class UserService {
@@ -58,14 +53,7 @@ public class UserService {
         TransactionStatus status = this.transactionManager.getTransaction(new DefaultTransactionDefinition());
         //각각 다른 트랜잭션을 이용하는경우
         try {
-            List<User> users = userDao.getAll();
-            for (User user : users) {
-                if (canUpgradeLevel(user)) {
-                    upgradeLevel(user);
-                    userDao.update(user);
-                    sendUpgradeEmail(user);
-                }
-            }
+            upgradeLevelsInternal();
 //            c.commit();
             this.transactionManager.commit(status);
         } catch (Exception e) {
@@ -79,6 +67,17 @@ public class UserService {
 //            TransactionSynchronizationManager.clearSynchronization();
 //            //동기화 작업 종료 및 정리
 //        }
+    }
+
+    private void upgradeLevelsInternal() {
+        List<User> users = userDao.getAll();
+        for (User user : users) {
+            if (canUpgradeLevel(user)) {
+                upgradeLevel(user);
+                userDao.update(user);
+                sendUpgradeEmail(user);
+            }
+        }
     }
 
     private void sendUpgradeEmail(User user) {
