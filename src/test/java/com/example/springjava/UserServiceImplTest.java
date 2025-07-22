@@ -13,7 +13,7 @@ import org.springframework.jdbc.datasource.SingleConnectionDataSource;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
 import org.springframework.transaction.PlatformTransactionManager;
-import service.UserService;
+import service.UserServiceImpl;
 
 import javax.sql.DataSource;
 import java.sql.SQLException;
@@ -21,16 +21,16 @@ import java.util.Arrays;
 import java.util.List;
 
 import static org.assertj.core.api.Assertions.*;
-import static service.UserService.*;
+import static service.UserServiceImpl.*;
 
 @ExtendWith(SpringExtension.class)
 @ContextConfiguration(classes = AppConfig.class)
-public class UserServiceTest {
+public class UserServiceImplTest {
 
     @Autowired
     PlatformTransactionManager transactionManager;
 
-    UserService userService;
+    UserServiceImpl userServiceImpl;
 
     UserDao dao;
 
@@ -49,9 +49,9 @@ public class UserServiceTest {
         DataSource dataSource = new SingleConnectionDataSource(
                 "jdbc:mysql://localhost:3306/spring_java_test", "root", "fpdlswj365", true);
         dao = new UserDao(dataSource);
-        userService = new UserService();
-        userService.setTransactionManager(transactionManager);
-        userService.setUserService(dao);
+        userServiceImpl = new UserServiceImpl();
+        userServiceImpl.setTransactionManager(transactionManager);
+        userServiceImpl.setUserService(dao);
     }
 
     @AfterEach
@@ -61,7 +61,7 @@ public class UserServiceTest {
 
     @Test
     public void bean() {
-        assertThat(this.userService).isNotNull();
+        assertThat(this.userServiceImpl).isNotNull();
     }
 
     @Test
@@ -70,8 +70,8 @@ public class UserServiceTest {
         User userWithoutLevel = users.get(0);
         userWithoutLevel.setLevel(null);
 
-        userService.add(userWithLevel);
-        userService.add(userWithoutLevel);
+        userServiceImpl.add(userWithLevel);
+        userServiceImpl.add(userWithoutLevel);
 
         User userWithLevelRead = dao.get(userWithLevel.getId());
         User userWithoutLevelRead = dao.get(userWithoutLevel.getId());
@@ -85,7 +85,7 @@ public class UserServiceTest {
         for (User user : users) {
             dao.add(user);
         }
-        userService.upgradeLevel();
+        userServiceImpl.upgradeLevels();
         checkLevel(users.get(0), false);
         checkLevel(users.get(1), true);
         checkLevel(users.get(2), false);
